@@ -11,17 +11,6 @@ function Square(props) {
 }
 
 class Board extends Component {
-    // constructor(props) {
-    //     super(props);
-    //     this.state = {
-    //         squares: Array(9).fill(null),
-    //         xIsNext: true,
-    //         winner: null
-    //     }
-    // }
-
-
-
     renderSquare(i) {
         return (
             <Square
@@ -29,7 +18,6 @@ class Board extends Component {
                 onClick={() => this.props.onClick(i)}
             />
         );
-
     }
 
     render() {
@@ -63,12 +51,13 @@ class Game extends Component {
                 squares: Array(9).fill(null)
             }],
             xIsNext: true,
+            stepNumber: 0,
             winner: null
         };
     }
 
     handleClick(i) {
-        const history = this.state.history;
+        const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
 
         // if the square is already occupied or the game is finished, do nothing
@@ -80,13 +69,30 @@ class Game extends Component {
         this.setState({
             history: history.concat([{ squares }]),
             xIsNext: !this.state.xIsNext,
+            stepNumber: history.length,
             winner,
+        });
+    }
+
+    jumpTo(step) {
+        this.setState({
+            stepNumber: step,
+            xIsNext: (step % 2) === 0
         });
     }
 
     render() {
         const history = this.state.history;
-        const current = history[history.length - 1];
+        const current = history[this.state.stepNumber];
+
+        const moves = history.map((step, move) => {
+            const desc = move ? `Go to move #${move}` : 'Go to game start';
+            return (
+                <li key={move}>
+                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
+                </li>
+            );
+        });
 
         let status;
         if (this.state.winner) {
@@ -105,7 +111,7 @@ class Game extends Component {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
-                    <ol>{/* TODO */}</ol>
+                    <ol>{moves}</ol>
                 </div>
             </div>
         );
@@ -116,6 +122,7 @@ class Game extends Component {
 //              Helpers
 // ========================================
 
+// TODO: add handling of ties
 function calculateWinner(squares) {
     const lines = [
         [0, 1, 2],
