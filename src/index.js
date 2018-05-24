@@ -15,14 +15,19 @@ class Board extends Component {
         super(props);
         this.state = {
             squares: Array(9).fill(null),
-            xIsNext: true
+            xIsNext: true,
+            winner: null
         }
     }
 
     handleClick(i) {
+        // if the square is already occupied or the game is finished, do nothing
+        if (this.state.squares[i] || this.state.winner) return;
+        // update the state of the square
         const squares = this.state.squares.slice();
         squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({ squares, xIsNext: !this.state.xIsNext });
+        const winner = calculateWinner(squares);
+        this.setState({ squares, winner, xIsNext: !this.state.xIsNext });
     }
 
     renderSquare(i) {
@@ -36,10 +41,10 @@ class Board extends Component {
     }
 
     render() {
-        const winner = calculateWinner(this.state.squares);
+        // const winner = calculateWinner(this.state.squares);
         let status;
-        if (winner) {
-            status = `Winner: ${winner}`;
+        if (this.state.winner) {
+            status = `Winner: ${this.state.winner}`;
         } else {
             status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
         }
