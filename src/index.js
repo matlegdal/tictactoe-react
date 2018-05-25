@@ -30,10 +30,12 @@ class Board extends Component {
                 <div key={row} className="board-row">
                     {
                         [1, 2, 3].map(() => {
+                            // add the winner class to highlight squares that are part of the winning line
                             let squareClass = '';
                             if (this.props.winner) {
                                 squareClass = this.props.winner.squares.includes(i) ? 'winner' : '';
                             }
+                            // render the square 
                             const square = this.renderSquare(i, squareClass);
                             i++;
                             return square;
@@ -73,7 +75,9 @@ class Game extends Component {
         // update the state of the square
         const squares = current.squares.slice();
         squares[i] = this.state.xIsNext ? 'X' : 'O';
+        // check winner 
         const winner = calculateWinner(squares);
+        // update the states
         this.setState({
             history: history.concat([{ squares }]),
             xIsNext: !this.state.xIsNext,
@@ -93,6 +97,7 @@ class Game extends Component {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
 
+        // add a button to jump to step in history
         const moves = history.map((step, move) => {
             const desc = move ? `Go to move #${move}` : 'Go to game start';
             return (
@@ -102,14 +107,14 @@ class Game extends Component {
             );
         });
 
+        // update the status message : winner, draw or next player
         let status;
-        // let winnerSquares;
         if (this.state.winner) {
             status = `Winner: ${this.state.winner.player}`;
-            // winnerSquares = this.state.winner.squares.slice();
+        } else if (!current.squares.includes(null)) {
+            status = 'Draw!';
         } else {
             status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
-            // winnerSquares = null;
         }
 
         return (
@@ -118,8 +123,7 @@ class Game extends Component {
                     <Board
                         squares={current.squares}
                         onClick={(i) => this.handleClick(i)}
-                        winner = {this.state.winner}
-                        // winnerSquares={winnerSquares}
+                        winner={this.state.winner}
                     />
                 </div>
                 <div className="game-info">
@@ -135,7 +139,6 @@ class Game extends Component {
 //              Helpers
 // ========================================
 
-// TODO: add handling of ties
 function calculateWinner(squares) {
     const lines = [
         [0, 1, 2],
